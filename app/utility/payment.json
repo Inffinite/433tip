@@ -1,0 +1,62 @@
+[
+  {
+    "country": "Kenya",
+    "monthly": "5000",
+    "weekly": "2500",
+    "value": "KES"
+  },
+  {
+    "country": "Nigeria",
+    "monthly": "5000",
+    "weekly": "2500",
+    "value": "NGN"
+  },
+  {
+    "country": "Cameroon",
+    "monthly": "5000",
+    "weekly": "2500",
+    "value": "XAF"
+  },
+  {
+    "country": "South Africa",
+    "monthly": "5000",
+    "weekly": "2500",
+    "value": "ZAR"
+  },
+  {
+    "country": "Tanzania",
+    "monthly": "5000",
+    "weekly": "2500",
+    "value": "TZS"
+  },
+  {
+    "country": "Uganda",
+    "monthly": "5000",
+    "weekly": "2500",
+    "value": "UGX"
+  },
+  {
+    "country": "Zambia",
+    "monthly": "5000",
+    "weekly": "2500",
+    "value": "ZMW"
+  },
+  {
+    "country": "Rwanda",
+    "monthly": "5000",
+    "weekly": "2500",
+    "value": "RWF"
+  },
+  {
+    "country": "Malawi",
+    "monthly": "5000",
+    "weekly": "2500",
+    "value": "MWK"
+  },
+  {
+    "country": "Others",
+    "monthly": "5000",
+    "weekly": "2500",
+    "value": "USD"
+  }
+]

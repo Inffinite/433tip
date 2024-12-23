@@ -1,0 +1,353 @@
+@media screen {
+  .formSettingContainer {
+    gap: 10px;
+    width: 100%;
+    display: flex;
+    overflow: hidden;
+    overflow-y: auto;
+    padding-top: 20px;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .formSettingContainerInner {
+    gap: 20px;
+    width: 100%;
+    display: flex;
+    border-radius: 15px;
+    flex-direction: column;
+  }
+
+  .settingWrap {
+    display: flex;
+    padding: 10px;
+    min-width: 200px;
+    width: fit-content;
+    position: relative;
+    border-radius: 15px;
+    flex-direction: column;
+    border: 1px solid var(--line-color);
+    background-color: var(--primary-light-color);
+  }
+
+  .profileSection {
+    gap: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .profileImageContain {
+    width: 90px;
+    height: 90px;
+    display: flex;
+    position: relative;
+    align-items: center;
+    border-radius: 15px;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .profileImage {
+    width: inherit;
+    height: inherit;
+    object-fit: cover;
+    border-radius: inherit;
+    object-position: center;
+    border: 4px solid var(--line-color);
+  }
+
+  .uploadEditIcon {
+    bottom: -10px;
+    width: 40px;
+    right: -10px;
+    height: 40px;
+    display: flex;
+    cursor: pointer;
+    position: absolute;
+    border-radius: 15px;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--line-color);
+    background-color: var(--primary-color);
+  }
+
+  .uploadEditIcon:hover {
+    background-color: var(--tertiary-color);
+  }
+
+  .editIcon {
+    font-size: 20px;
+    fill: var(--tertiary-color);
+  }
+
+  .uploadEditIcon:hover .editIcon {
+    fill: var(--background-color);
+  }
+
+  .profileDetails {
+    gap: 10px;
+    width: 100%;
+    display: flex;
+    padding: 10px 4px;
+    flex-direction: column;
+    text-transform: capitalize;
+  }
+
+  .profileDetails h1 {
+    font-size: 0.9rem;
+    color: var(--tertiary-color);
+    font-family: var(--font-poppins-regular);
+  }
+
+  .profileGlass {
+    gap: 5px;
+    padding: 10px;
+    display: flex;
+    border-radius: 15px;
+    flex-direction: column;
+    background-color: var(--line-color);
+  }
+
+  .profileGlass h3,
+  .profileGlass h2 {
+    font-size: 0.8rem;
+  }
+
+  .profileGlass h3 {
+    text-transform: lowercase;
+    font-family: var(--font-poppins-extralight);
+  }
+
+  .deleteAccount {
+    top: 0;
+    right: 0;
+    padding: 15px;
+    cursor: pointer;
+    text-align: center;
+    position: absolute;
+    color: var(--loose-color);
+  }
+
+  .deleteIcon {
+    font-size: 24px;
+  }
+
+  .settingWrapinfo {
+    gap: 20px;
+    width: 100%;
+    display: flex;
+    border-radius: 15px;
+    flex-direction: column;
+  }
+
+  .settingWrapS {
+    gap: 20px;
+    display: flex;
+    padding: 10px;
+    width: inherit;
+    border-radius: 15px;
+    align-items: center;
+    flex-direction: column;
+    border: 1px solid var(--line-color);
+    background-image: var(--background-image);
+    background-color: var(--primary-light-color);
+  }
+
+  .settingInputContainer {
+    gap: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .settingLabel {
+    font-family: var(--font-poppins-extralight);
+    text-transform: capitalize;
+    color: var(--light-color);
+    text-wrap: nowrap;
+    font-size: 1rem;
+  }
+
+  .settingInput {
+    gap: 20px;
+    width: 100%;
+    display: flex;
+    padding: 10px 20px;
+    border-radius: 15px;
+    align-items: center;
+    color: var(--dark-light);
+    background-color: var(--primary-lighter-color);
+  }
+
+  .settingIcon {
+    font-size: 20px;
+    color: var(--dark-light);
+  }
+
+  .settingInput:hover .settingIcon {
+    color: var(--tertiary-color);
+  }
+
+  .settingInput input {
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 10px;
+    color: var(--dark-light);
+    background: transparent;
+  }
+
+  .settingInput input:-webkit-autofill,
+  .settingInput input:-webkit-autofill:hover,
+  .settingInput input:-webkit-autofill:focus,
+  .settingInput input:-webkit-autofill:active {
+    transition: background-color 5000s ease-in-out 0s;
+    -webkit-text-fill-color: var(--dark-light) !important;
+  }
+
+  .settingInput input:focus {
+    background-color: transparent;
+  }
+
+  .settingInput input::placeholder {
+    font-size: 0.8rem;
+    text-transform: capitalize;
+    color: var(--dark-light);
+  }
+
+  .errorText {
+    font-size: 0.8rem;
+    list-style: none;
+    text-align: center;
+    color: var(--tertiary-color);
+  }
+
+  .dropdownContainer {
+    width: 100%;
+    height: 40px;
+    display: flex;
+    padding: 10px;
+    cursor: pointer;
+    position: relative;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .dropdownContainer span {
+    font-size: 1rem;
+  }
+
+  .dropdownInput {
+    gap: 10px;
+    width: 100%;
+    display: flex;
+    border-radius: 15px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .dropdownIcon {
+    font-size: 24px;
+  }
+
+  .dropdownArea {
+    top: 60px;
+    z-index: 99;
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: absolute;
+    border-radius: 15px;
+    flex-direction: column;
+    border: 1px solid var(--line-color);
+    background-color: var(--primary-lighter-color);
+  }
+
+  .dropdownArea span {
+    padding: 10px;
+  }
+
+  .dropdownArea span:hover {
+    border-radius: 15px;
+    color: var(--primary-color);
+    background-color: var(--tertiary-color);
+  }
+
+  .formsettingButton {
+    gap: 15px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 1rem;
+    max-height: 60px;
+    min-height: 60px;
+    border-radius: 15px;
+    color: var(--primary-color);
+    background-color: var(--tertiary-color);
+  }
+
+  .formsettingButton:hover {
+    background-color: var(--secondary-color);
+  }
+
+  .showBtn {
+    cursor: pointer;
+    color: var(--primary-color);
+    background-color: transparent;
+  }
+}
+
+/* using it as global style for larger devices  */
+@media only screen and (min-width: 48em) {
+  .formSettingContainer {
+    height: 100%;
+  }
+
+  .formSettingContainerInner {
+    width: 80%;
+  }
+
+  .profileImageContain {
+    width: 100px;
+    height: 100px;
+  }
+
+  .settingWrapS {
+    gap: 20px;
+    justify-content: space-between;
+  }
+
+  .settingInput {
+    padding: 14px;
+  }
+
+  .profileDetails {
+    text-align: start;
+  }
+}
+
+/* ipad pro screens & laptop */
+@media only screen and (min-width: 49em) and (max-width: 64em) {
+  .formSettingContainerInner {
+    width: calc(100% / 2);
+  }
+}
+
+/* large screens : Desktop and 4k screens */
+
+@media only screen and (min-width: 64.063em) and (max-width: 90em) {
+  .formSettingContainerInner {
+    width: calc(100% / 2);
+  }
+}
+
+/* 5k screens and above */
+@media only screen and (min-width: 91em) {
+  .formSettingContainerInner {
+    width: calc(100% / 2);
+  }
+}
