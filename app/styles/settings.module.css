@@ -19,10 +19,10 @@
   }
 
   .settingWrap {
+    width: 100%;
     display: flex;
     padding: 10px;
     min-width: 200px;
-    width: fit-content;
     position: relative;
     border-radius: 15px;
     flex-direction: column;
@@ -34,12 +34,13 @@
     gap: 10px;
     display: flex;
     align-items: center;
+    flex-direction: column;
     justify-content: space-between;
   }
 
   .profileImageContain {
-    width: 90px;
-    height: 90px;
+    width: 100px;
+    height: 150px;
     display: flex;
     position: relative;
     align-items: center;
@@ -59,9 +60,9 @@
 
   .uploadEditIcon {
     bottom: -10px;
-    width: 40px;
+    width: 50px;
     right: -10px;
-    height: 40px;
+    height: 60px;
     display: flex;
     cursor: pointer;
     position: absolute;
@@ -77,7 +78,7 @@
   }
 
   .editIcon {
-    font-size: 20px;
+    font-size: 24px;
     fill: var(--tertiary-color);
   }
 
@@ -90,12 +91,13 @@
     width: 100%;
     display: flex;
     padding: 10px 4px;
+    text-align: center;
     flex-direction: column;
     text-transform: capitalize;
   }
 
   .profileDetails h1 {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: var(--tertiary-color);
     font-family: var(--font-poppins-regular);
   }
@@ -111,7 +113,7 @@
 
   .profileGlass h3,
   .profileGlass h2 {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
   }
 
   .profileGlass h3 {
@@ -119,19 +121,64 @@
     font-family: var(--font-poppins-extralight);
   }
 
-  .deleteAccount {
-    top: 0;
-    right: 0;
-    padding: 15px;
-    cursor: pointer;
-    text-align: center;
-    position: absolute;
-    color: var(--loose-color);
+
+  .socialWrapper {
+    gap: 15px;
+    display: flex;
+    flex-direction: column;
   }
 
-  .deleteIcon {
-    font-size: 24px;
+  .socialContainer {
+    gap: 14px;
+    display: flex;
+    justify-content: space-around;
   }
+
+  .shareLinkCopy {
+    gap: 10px;
+    display: flex;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 15px;
+    align-items: center;
+    background-color: var(--primary-lighter-color);
+
+  }
+
+  .shareLinkCopy p {
+    font-size: 0.8rem;
+    color: var(--dark-light);
+  }
+  
+  .socialIcon {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .shareicon {
+    cursor: pointer;
+    font-size: 20px;
+  }
+
+  .copyField {
+    gap: 10px;
+    width: 200px;
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+    cursor: pointer;
+    text-wrap: nowrap;
+  }
+
+  .copyInner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
 
   .settingWrapinfo {
     gap: 20px;
@@ -299,6 +346,60 @@
     color: var(--primary-color);
     background-color: transparent;
   }
+
+  .dangerZone {
+    gap: 10px;
+    padding: 10px;
+    display: flex;
+    border-radius: 15px;
+    flex-direction: column;
+    border: 1px solid var(--loose-color);
+  }
+
+  .dangerZone h2 {
+    font-size: 1rem;
+    color: var(--loose-color);
+  }
+  
+  .deleteAccount {
+    justify-content: space-between;
+    color:  var(--loose-color);
+    flex-direction: column;
+    align-items: center;
+    display: flex;
+    gap: 10px;
+  }
+
+  
+  .deleteInfo {
+    gap: 10px;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  
+  .deleteIcon {
+    font-size: 50px;
+    color:  var(--loose-color);
+  }
+  
+  
+  .deleteButton {
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    max-height: 60px;
+    min-height: 60px;
+    border-radius: 15px;
+    color: var(--light-color);
+    background-color: var(--loose-color);
+  }
+
+  .deleteButton:hover {
+    background-color: var(--light-loose-color);
+  }
 }
 
 /* using it as global style for larger devices  */
@@ -311,9 +412,8 @@
     width: 80%;
   }
 
-  .profileImageContain {
-    width: 100px;
-    height: 100px;
+  .settingWrap {
+    width: fit-content;
   }
 
   .settingWrapS {
@@ -325,9 +425,34 @@
     padding: 14px;
   }
 
+  .profileImageContain {
+    width: 100px;
+    height: 100%;
+  }
+
+  .profileSection {
+    flex-direction: row;
+  }
+
   .profileDetails {
     text-align: start;
   }
+
+  .deleteInfo {
+    flex-direction: row;
+    text-align: start;
+  }
+
+  
+  .deleteAccount {
+    flex-direction: row;
+  }
+
+  .deleteButton {
+    width: fit-content;
+  }
+
+
 }
 
 /* ipad pro screens & laptop */

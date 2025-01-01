@@ -1,156 +1,73 @@
-export default function sitemap() {
+const DOMAIN = 'https://www.433tips.com'
+const DEFAULT_PRIORITY = 0.8
+const HIGH_PRIORITY = 1.0
+
+const createSitemapEntry = (
+  path,
+  changeFreq = 'monthly',
+  priority = DEFAULT_PRIORITY
+) => ({
+  url: `${DOMAIN}${encodeURI(path)}`.replace(/&/g, '&amp;'),
+  lastModified: new Date(),
+  changeFrequency: changeFreq,
+  priority,
+})
+
+const authRoutes = [
+  '/authentication/login',
+  '/authentication/verification',
+  '/authentication/signup',
+  '/authentication/reset',
+  '/authentication/resetCode',
+].map(path => createSitemapEntry(path, 'yearly', 0.8))
+
+const mainRoutes = [
+  createSitemapEntry('/', 'always', HIGH_PRIORITY),
+  createSitemapEntry('/page/dashboard', 'always', 0.9),
+  createSitemapEntry('/page/dashboard/?card=link', 'always', 0.9),
+]
+
+const sportRoutes = [
+  createSitemapEntry('/page/football', 'always', 0.9),
+  createSitemapEntry('/page/football?date', 'always', 0.9),
+  createSitemapEntry('/page/otherSport', 'always', 0.9),
+  createSitemapEntry('/page/otherSport?date', 'always', 0.9),
+]
+
+const vipRoutes = [
+  createSitemapEntry('/page/vip', 'always', 0.9),
+  createSitemapEntry('/page/vip?date', 'always', 0.9),
+  createSitemapEntry('/page/vip/[slug]?date', 'always', 0.9),
+]
+
+const paymentRoutes = [
+  createSitemapEntry('/page/payment', 'yearly', 0.9),
+  createSitemapEntry('/page/payment/[slug]', 'yearly', 0.9),
+  createSitemapEntry('/page/payment/[slug]?plan=standard&amp;price=100&amp;currency=USD', 'yearly', 0.9),
+  createSitemapEntry('/page/payment/manual', 'yearly', 0.9),
+]
+
+const staticRoutes = [
+  createSitemapEntry('/page/contact', 'monthly', 0.9),
+  createSitemapEntry('/page/settings', 'weekly', 0.9),
+  createSitemapEntry('/page/about', 'yearly', 0.8),
+  createSitemapEntry('/page/terms', 'yearly', 0.9),
+]
+
+const getDynamicRoutes = async () => {
+  return []
+}
+
+export default async function sitemap() {
+  const dynamicRoutes = await getDynamicRoutes()
+
   return [
-    {
-      url: "https://www.433tips.com/",
-      lastModified: new Date(),
-      changeFrequency: "always",
-      priority: 1,
-    },
-    {
-      url: "https://www.433tips.com/authentication/login",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.8,
-    },
-    {
-      url: "https://www.433tips.com/authentication/verification",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.8,
-    },
-    {
-      url: "https://www.433tips.com/authentication/signup",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.8,
-    },
-    {
-      url: "https://www.433tips.com/authentication/reset",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.8,
-    },
-    {
-      url: "https://www.433tips.com/authentication/forgot",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.8,
-    },
-    {
-      url: "https://www.433tips.com/authentication/resetCode",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.8,
-    },
-
-    {
-      url: "https://www.433tips.com/page/terms",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/dashboard",
-      lastModified: new Date(),
-      changeFrequency: "always",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/football",
-      lastModified: new Date(),
-      changeFrequency: "always",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/football?",
-      lastModified: new Date(),
-      changeFrequency: "always",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/football/[slug]",
-      lastModified: new Date(),
-      changeFrequency: "always",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/otherSport",
-      lastModified: new Date(),
-      changeFrequency: "always",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/otherSport/[slug]",
-      lastModified: new Date(),
-      changeFrequency: "always",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/straight",
-      lastModified: new Date(),
-      changeFrequency: "always",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/straight/[slug]",
-      lastModified: new Date(),
-      changeFrequency: "always",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/vip",
-      lastModified: new Date(),
-      changeFrequency: "always",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/vip/[slug]",
-      lastModified: new Date(),
-      changeFrequency: "always",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/payment",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/payment/[slug]",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/payment/manual",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/contact",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.9,
-    },
-    {
-      url: "https://www.433tips.com/page/settings",
-      lastModified: new Date(),
-      changeFrequency: "always",
-      priority: 0.9,
-    },
-
-    {
-      url: "https://www.433tips.com/page/about",
-      lastModified: new Date(),
-      changeFrequency: "never",
-      priority: 0.8,
-    },
-    {
-      url: "https://www.433tips.com/page/not-found",
-      lastModified: new Date(),
-      changeFrequency: "never",
-      priority: 0.8,
-    },
-  ];
+    ...authRoutes,
+    ...mainRoutes,
+    ...sportRoutes,
+    ...vipRoutes,
+    ...paymentRoutes,
+    ...staticRoutes,
+    ...dynamicRoutes,
+  ]
 }

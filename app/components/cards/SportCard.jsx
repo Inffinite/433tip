@@ -7,8 +7,8 @@ import { useRouter } from "next/navigation";
 import styles from "@/app/styles/sportcard.module.css";
 
 export default function SportCard({
-  formationA = ["l", "w", "d", "l", "w"],
-  formationB = ["l", "w", "d", "l", "w"],
+  formationA = ["L", "W", "D", "L", "W"],
+  formationB = ["L", "W", "D", "L", "W"],
   leagueImage,
   teamAImage,
   teamBImage,
@@ -21,8 +21,10 @@ export default function SportCard({
   time,
   status,
   sport,
+  category,
   showScore,
   component,
+  currentDate
 }) {
   const router = useRouter();
 
@@ -33,25 +35,30 @@ export default function SportCard({
 
   const getFormationColorClass = (formation) => {
     switch (formation) {
-      case "w":
+      case "W":
         return styles.win;
-      case "d":
+      case "D":
         return styles.draw;
-      case "l":
+      case "L":
         return styles.lose;
       default:
         return styles.defaultColor;
     }
   };
 
-  const openGame = (url) => {
-    router.push(`${sport}/${url}`, { scroll: false });
+  const openGame = () => {
+    const cleanTeamA = teamA.trim().replace(/\s+/g, '-');
+    const cleanTeamB = teamB.trim().replace(/\s+/g, '-');
+    const formattedDate = currentDate || DateTime.fromISO(time).toFormat('dd-MM-yyyy');
+    const url = `${category.toLowerCase()}/${cleanTeamA}-vs-${cleanTeamB}?date=${formattedDate}`;
+    
+    router.push(url);
   };
 
   return (
     <div
       className={styles.cardContainer}
-      onClick={() => openGame(`${teamA} vs ${teamB}`)}
+      onClick={openGame}
     >
       <div className={styles.cardWrapper}>
         <div className={styles.cardTop}>

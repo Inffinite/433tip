@@ -1,6 +1,6 @@
 # 433tips
 
-SportTip website
+sport tip website
 
 ```bash
 npm run dev

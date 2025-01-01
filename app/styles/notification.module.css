@@ -15,14 +15,25 @@
   }
 
   .notificationHeader h1 {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-family: var(--font-outfit-light);
   }
 
-  .notificationHeader p {
+  .headerActions {
+    gap: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .actionButton {
     cursor: pointer;
-    font-size: 1rem;
-    font-family: var(--font-outfit-extralight);
+    color: var(--dark-light);
+    background-color: transparent;
+  }
+
+  .actionButton:hover {
+    color: var(--tertiary-color);
   }
 
   .alertNotificationComponent {
@@ -44,20 +55,19 @@
   }
 
   .alertInfo {
-    gap: 4px;
+    gap: 2px;
     display: flex;
+    font-size: 0.7rem;
     text-align: start;
     align-items: start;
     flex-direction: column;
   }
 
-  .alertInfo h1 {
-    font-size: 0.8rem;
+  .alertInfo h2 {
     font-family: var(--font-outfit-light);
   }
 
   .alertInfo p {
-    font-size: 0.7rem;
     font-family: var(--font-outfit-extralight);
   }
 
@@ -73,6 +83,7 @@
     border-radius: 20px;
     cursor: pointer;
     display: flex;
+    min-width: 50px;
     width: 50px;
     height: 20px;
   }
@@ -90,45 +101,71 @@
     gap: 10px;
     width: 100%;
     display: flex;
+    padding: 10px;
+    cursor: pointer;
+    min-height: 80px;
+    font-size: 0.8rem;
+    border-radius: 15px;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    color: var(--dark-light);
+    border: 1px solid var(--line-color);
+  }
+
+  .unread {
+    color: var(--primary-color);
+    border: 1px solid var(--tertiary-light-color);
+    background-color: var(--tertiary-light-color);
   }
 
   .notification {
-    gap: 6px;
+    width: 100%;
+    height: 100%;
     display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .notificationProfileImage {
-    object-fit: cover;
-    border-radius: 15px;
-    object-position: center;
-  }
-
-  .notificationInfo {
-    gap: 4px;
-    display: flex;
-    align-items: start;
+    position: relative;
     flex-direction: column;
   }
 
-  .notificationInfo h1 {
-    font-size: 0.8rem;
-    color: var(---light-color);
-    font-family: var(--font-outfit-medium);
+  .timestamp {
+    display: flex;
+    font-size: 0.5rem;
+    align-items: center;
+    justify-content: flex-end;
   }
 
-  .notificationInfo p {
-    font-size: 0.8rem;
-    text-align: start;
+  .notification h3 {
+    text-decoration: underline;
+    text-transform: capitalize;
+    font-family: var(--font-outfit-regular);
+  }
+
+  .notification p {
     font-family: var(--font-outfit-extralight);
   }
 
-  .deleteNotificationIcon {
+  .deleteIcon {
+    top: 0;
+    right: 0;
     cursor: pointer;
-    font-size: 28px;
+    font-size: 20px;
+    position: absolute;
+  }
+
+  .deleteAllIcon,
+  .refreshIcon {
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .deleteAllIcon:hover {
+    color: var(--loose-color);
+  }
+
+  .refreshIcon:hover {
+    color: var(--tertiary-color);
+  }
+
+  .deleteIcon:hover {
     color: var(--loose-color);
   }
 
@@ -149,12 +186,25 @@
     background-color: var(--tertiary-color);
   }
 
-  .noNotificationArea {
+  .emptyState {
+    width: 100%;
     height: 100%;
     display: flex;
-    position: relative;
+    min-height: auto;
     align-items: center;
+    flex-direction: column;
     justify-content: center;
+    color: var(--dark-light);
+  }
+
+  .emptyState p {
+    text-transform: lowercase;
+  }
+
+  .emptyStateImage {
+    width: 100%;
+    height: 120px;
+    object-fit: contain;
   }
 }
 
@@ -162,4 +212,13 @@
   .deleteNotificationIcon {
     font-size: 24px;
   }
+
+  .notificationArea {
+    height: fit-content;
+  }
+
+  .emptyState {
+    height: fit-content;
+  }
+
 }

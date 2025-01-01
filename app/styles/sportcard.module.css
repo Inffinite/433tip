@@ -82,7 +82,7 @@
   .teamContainer h1 {
     font-family: var(--font-outfit-medium);
     color: var(--tertiary-color);
-    font-size: 1.2rem;
+    font-size: 2rem;
   }
 
   .teamInner {
@@ -226,10 +226,6 @@
     gap: 10px;
   }
 
-  .teamContainer h1 {
-    font-size: 1.4rem;
-    
-  }
 
   .formationCircle {
     width: 30px;

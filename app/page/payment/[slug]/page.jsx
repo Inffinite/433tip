@@ -1,8 +1,8 @@
 "use client";
 
+import { toast } from 'sonner';
 import Image from "next/image";
 import Script from "next/script";
-import toast from "react-hot-toast";
 import CardImage from "@/public/assets/card.png";
 import AirtelImage from "@/public/assets/airtel.png";
 import MpesaImage from "@/public/assets/mpesa.png";
@@ -413,7 +413,8 @@ export default function PaymentMethods({ params }) {
           className={styles.paymentImage}
           src={image}
           alt={alt}
-          layout="fill"
+          fill
+          sizes="100%"
           objectFit="contain"
           priority={true}
         />
@@ -434,7 +435,8 @@ export default function PaymentMethods({ params }) {
           className={styles.paymentImage}
           src={image}
           alt={alt}
-          layout="fill"
+          fill
+          sizes="100%"
           objectFit="contain"
           priority={true}
         />
@@ -491,7 +493,8 @@ export default function PaymentMethods({ params }) {
                   className={styles.paymentImage}
                   src={manualImage}
                   alt="manual image"
-                  layout="fill"
+                  fill
+          sizes="100%"
                   objectFit="cover"
                   priority={true}
                 />

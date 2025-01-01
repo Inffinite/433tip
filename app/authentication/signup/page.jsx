@@ -1,14 +1,14 @@
 "use client";
 
+import { toast } from 'sonner';
 import Image from "next/image";
-import toast from "react-hot-toast";
 import { useAuthStore } from "@/app/store/Auth";
 import countries from "@/app/utility/Countries";
 import { useState, useEffect, useRef } from "react";
-import Loader from "@/app/components/Loader";
+import Loader from "@/app/components/StateLoader";
 import LogoImg from "@/public/assets/logo.png";
 import styles from "@/app/styles/auth.module.css";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams  } from "next/navigation";
 
 import {
   FiEye as ShowPasswordIcon,
@@ -22,16 +22,16 @@ import {
 } from "react-icons/md";
 import { RiArrowDropDownLine as DropdownIcon } from "react-icons/ri";
 
-const SERVER_API = process.env.NEXT_PUBLIC_SERVER_API;
-
 export default function SignUp() {
-  const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const { setUser, accessToken } = useAuthStore.getState();
-
+  const [referral, setReferral] = useState(null); 
+  const [isOpen, setIsOpen] = useState(false);
+  const [terms, setTerms] = useState(false);
+  const searchParams = useSearchParams();
+  const { register } = useAuthStore();
   const dropdownRef = useRef(null);
   const router = useRouter();
 
@@ -43,9 +43,6 @@ export default function SignUp() {
     confirmPassword: "",
   });
 
-  const [terms, setTerms] = useState(false);
-  const [errors, setErrors] = useState({});
-
   const images = [
     "/assets/auth1Image.jpg",
     "/assets/auth2Image.jpg",
@@ -53,7 +50,6 @@ export default function SignUp() {
   ];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Handle clicks outside dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -65,7 +61,6 @@ export default function SignUp() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Image rotation
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
@@ -74,21 +69,22 @@ export default function SignUp() {
     return () => clearInterval(interval);
   }, [images.length]);
 
+  useEffect(() => {
+    const referralParam = searchParams.get("referral");
+    if (referralParam) {
+      setReferral(referralParam);
+    }
+  }, [searchParams]);
+
   const handleCountrySelect = (country) => {
-    setFormData((prev) => ({ ...prev, country: country.code }));
+    setFormData((prev) => ({ ...prev, country: country.name }));
     setSearchTerm(country.name);
     setIsOpen(false);
-    setErrors((prev) => ({ ...prev, country: "" }));
   };
 
   const filteredCountries = countries.filter((country) =>
     country.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleTermsChange = (e) => {
-    setTerms(e.target.checked);
-    setErrors((prev) => ({ ...prev, terms: "" }));
-  };
 
   const togglePasswordVisibility = (field) => {
     if (field === "password") {
@@ -98,93 +94,67 @@ export default function SignUp() {
     }
   };
 
-  const validatePassword = (password) => {
-    const errors = [];
-    if (password.length < 8) {
-      errors.push("Password must be at least 8 characters long");
-    }
-    if (!/(?=.*[a-z])/.test(password)) {
-      errors.push("Password must contain at least one lowercase letter");
-    }
-    if (!/(?=.*[A-Z])/.test(password)) {
-      errors.push("Password must contain at least one uppercase letter");
-    }
-    if (!/(?=.*\d)/.test(password)) {
-      errors.push("Password must contain at least one number");
-    }
-    if (!/(?=.*[!@#$%^&*])/.test(password)) {
-      errors.push(
-        "Password must contain at least one special character (!@#$%^&*)"
-      );
-    }
-    return errors;
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    if (name === "password") {
-      const passwordErrors = validatePassword(value);
-      setErrors((prev) => ({ ...prev, password: passwordErrors }));
-    } else {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.username.trim()) newErrors.username = "Username is required";
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(formData.email))
-      newErrors.email = "Email is invalid";
-    if (!formData.country) newErrors.country = "Country is required";
-    const passwordErrors = validatePassword(formData.password);
-    if (passwordErrors.length > 0) {
-      newErrors.password = passwordErrors;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-    if (!terms) newErrors.terms = "You must accept the terms and conditions";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
 
+    if (!formData.username.trim()) {
+      toast.error("Username is required");
+      return;
+    }
+    if (!formData.email.trim()) {
+      toast.error("Email is required");
+      return;
+    }
+    if (!formData.country) {
+      toast.error("Country is required");
+      return;
+    }
+    if (!formData.password) {
+      toast.error("Password is required");
+      return;
+    }
+    if (!formData.confirmPassword) {
+      toast.error("Please confirm your password");
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    if (!terms) {
+      toast.error("Please accept the terms and conditions");
+      return;
+    }
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `${SERVER_API}/users/public/promoters/register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+     
+      const userData = {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        country: formData.country,
+      };
 
-      const data = await response.json();
-      setUser(data);
-
-      if (!response.ok) {
-        throw new Error(data.errors || "Sign up failed");
+      if (referral) {
+        userData.referredBy = referral;
       }
 
-      toast.success(
-        data.message ||
-          "Sign up successful! Please check your email for verification."
-      );
-      router.push("verification", { scroll: false });
+      const result = await register(userData);
+
+      if (result.success) {
+        toast.success(result.message );
+        router.push("verification", { scroll: false });
+      } else {
+        toast.error(result.message );
+      }
     } catch (error) {
-      toast.error(error.message || "Sign up failed");
+      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -197,9 +167,12 @@ export default function SignUp() {
           className={styles.authImage}
           src={images[currentImageIndex]}
           alt="auth image"
-          layout="fill"
+          fill
           quality={100}
-          objectFit="cover"
+          sizes="100%"
+          style={{
+            objectFit: 'cover', 
+          }}
           priority={true}
         />
       </div>
@@ -219,7 +192,6 @@ export default function SignUp() {
             <p>Enter your account details</p>
           </div>
 
-          {/* Username */}
           <div className={styles.authInput}>
             <UserNameIcon alt="username icon" className={styles.authIcon} />
             <input
@@ -228,13 +200,10 @@ export default function SignUp() {
               value={formData.username}
               onChange={handleInputChange}
               placeholder="Username"
+              required
             />
           </div>
-          {errors.username && (
-            <p className={styles.errorText}>{errors.username}</p>
-          )}
 
-          {/* Email */}
           <div className={styles.authInput}>
             <EmailIcon alt="email icon" className={styles.authIcon} />
             <input
@@ -243,11 +212,10 @@ export default function SignUp() {
               value={formData.email}
               onChange={handleInputChange}
               placeholder="Email"
+              required
             />
           </div>
-          {errors.email && <p className={styles.errorText}>{errors.email}</p>}
 
-          {/* Country Dropdown */}
           <div className={styles.authInput}>
             <CountryIcon alt="country icon" className={styles.authIcon} />
             <div className={styles.dropdownContainer} ref={dropdownRef}>
@@ -261,12 +229,11 @@ export default function SignUp() {
                 onClick={() => setIsOpen(true)}
                 placeholder="Search Country"
                 className={styles.dropdownInput}
+                required
               />
               <DropdownIcon
                 alt="dropdown icon"
-                className={`${styles.authIcon} ${
-                  isOpen ? styles.open : ""
-                }`}
+                className={`${styles.authIcon} ${isOpen ? styles.open : ""}`}
                 onClick={() => setIsOpen(!isOpen)}
               />
               {isOpen && (
@@ -284,10 +251,7 @@ export default function SignUp() {
               )}
             </div>
           </div>
-          {errors.country && (
-            <p className={styles.errorText}>{errors.country}</p>
-          )}
-          {/* Password */}
+
           <div className={styles.authInput}>
             <PasswordIcon alt="password icon" className={styles.authIcon} />
             <input
@@ -296,6 +260,7 @@ export default function SignUp() {
               value={formData.password}
               onChange={handleInputChange}
               placeholder="Password"
+              required
             />
             <button
               type="button"
@@ -303,27 +268,19 @@ export default function SignUp() {
               onClick={() => togglePasswordVisibility("password")}
             >
               {showPassword ? (
-                <HidePasswordIcon
-                  alt="hide password icon"
+                <ShowPasswordIcon
+                  alt="show password icon"
                   className={styles.authIcon}
                 />
               ) : (
-                <ShowPasswordIcon
-                  alt="show password icon"
+                <HidePasswordIcon
+                  alt="hide password icon"
                   className={styles.authIcon}
                 />
               )}
             </button>
           </div>
-          {errors.password &&
-            Array.isArray(errors.password) &&
-            errors.password.map((error, index) => (
-              <p key={index} className={styles.errorText}>
-                {error}
-              </p>
-            ))}
 
-          {/* Confirm Password */}
           <div className={styles.authInput}>
             <PasswordIcon alt="password icon" className={styles.authIcon} />
             <input
@@ -332,6 +289,7 @@ export default function SignUp() {
               value={formData.confirmPassword}
               onChange={handleInputChange}
               placeholder="Confirm Password"
+              required
             />
             <button
               type="button"
@@ -339,29 +297,26 @@ export default function SignUp() {
               onClick={() => togglePasswordVisibility("confirmPassword")}
             >
               {showConfirmPassword ? (
-                <HidePasswordIcon
-                  alt="hide password icon"
+                <ShowPasswordIcon
+                  alt="show password icon"
                   className={styles.authIcon}
                 />
               ) : (
-                <ShowPasswordIcon
-                  alt="show password icon"
+                <HidePasswordIcon
+                  alt="hide password icon"
                   className={styles.authIcon}
                 />
               )}
             </button>
           </div>
-          {errors.confirmPassword && (
-            <p className={styles.errorText}>{errors.confirmPassword}</p>
-          )}
 
-          {/* Terms and Conditions */}
           <div className={styles.termsContainer}>
             <input
               type="checkbox"
               id="terms"
               checked={terms}
-              onChange={handleTermsChange}
+              onChange={(e) => setTerms(e.target.checked)}
+              required
             />
             <label
               onClick={() => router.push("/page/terms", { scroll: false })}
@@ -370,9 +325,7 @@ export default function SignUp() {
               Accept terms and conditions
             </label>
           </div>
-          {errors.terms && <p className={styles.errorText}>{errors.terms}</p>}
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}

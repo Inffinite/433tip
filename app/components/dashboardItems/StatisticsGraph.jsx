@@ -1,5 +1,7 @@
-import React, { useState, useRef } from "react";
+import { useAuthStore } from "@/app/store/Auth";
+import LoadingLogo from "@/app/components/LoadingLogo";
 import styles from "@/app/styles/statistics.module.css";
+import { useState, useRef, useEffect , useCallback} from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -50,6 +52,7 @@ const options = {
           size: 12,
         },
         color: "#6cd7ff",
+        callback: (value) => `$${value}`,
       },
       grid: {
         color: "rgb(28, 43, 75)",
@@ -69,62 +72,54 @@ const options = {
   },
 };
 
-const labels = Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`);
-
-const generateMonthlyEarningsData = (month) => {
-  // Replace this with actual data fetching or calculation logic for the selected month
-  return labels.map(() => Math.floor(Math.random() * 500) + 500); // Mock earnings data
-};
-
 export default function StatisticGraph() {
-  const [date, setDate] = useState();
-  const [monthlyData, setMonthlyData] = useState(generateMonthlyEarningsData("January"));
+  const { getRevenueAnalytics } = useAuthStore();
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const dateInputRef = useRef(null);
 
-  const handleDateIconClick = () => {
-    dateInputRef.current?.showPicker();
-  };
+  const fetchAnalytics = useCallback(async () => {
+    const response = await getRevenueAnalytics();
+    if (response.success) {
+      setAnalyticsData(response.data);
+    }
+  }, [getRevenueAnalytics]);
 
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  useEffect(() => {
+    fetchAnalytics();
+  }, [selectedYear, fetchAnalytics]);
 
-  const handleDateChange = (e) => {
-    const selectedDate = new Date(e.target.value);
-    const month = selectedDate.toLocaleString("default", { month: "long" });
-    setDate(formatDate(e.target.value));
-    setMonthlyData(generateMonthlyEarningsData(month));
-  };
+
+  if (!analyticsData) {
+    return <LoadingLogo/>;
+  }
 
   const data = {
-    labels,
+    labels: analyticsData.monthlyData.map(item => item.month),
     datasets: [
       {
-        label: `Earnings for ${date ? date : "Selected Month"}`,
-        data: monthlyData,
+        label: 'Monthly Revenue',
+        data: analyticsData.monthlyData.map(item => item.revenue),
         backgroundColor: "rgb(0, 237, 161)",
         borderColor: "#00eda1",
       },
+      {
+        label: 'Weekly Plans',
+        data: analyticsData.monthlyData.map(item => item.weeklyPlans),
+        backgroundColor: "rgb(108, 215, 255)",
+        borderColor: "#6cd7ff",
+      },
+      {
+        label: 'Monthly Plans',
+        data: analyticsData.monthlyData.map(item => item.monthlyPlans),
+        backgroundColor: "rgb(255, 159, 67)",
+        borderColor: "#ff9f43",
+      }
     ],
   };
 
   return (
-    <div className={styles.StatisticsComponent}>
-      <div className={styles.StatisticsHeader}>
-        <div className={styles.dateFilter}>
-          <input
-            type="month"
-            name="date"
-            className={styles.dateInputFilter}
-            ref={dateInputRef}
-            onChange={handleDateChange}
-          />
-        </div>
-      </div>
+    <div className={styles.StatisticsComponent}>  
       <div className={styles.barGraph}>
         <Bar options={options} data={data} />
       </div>

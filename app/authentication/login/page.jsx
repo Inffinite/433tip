@@ -1,17 +1,13 @@
 "use client";
 
+import { toast } from "sonner";
 import Image from "next/image";
-import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Loader from "@/app/components/Loader";
 import LogoImg from "@/public/assets/logo.png";
 import { useAuthStore } from "@/app/store/Auth";
 import styles from "@/app/styles/auth.module.css";
-import auth1Image from "@/public/assets/auth1Image.jpg";
-import auth2Image from "@/public/assets/auth2Image.jpg";
-import auth3Image from "@/public/assets/auth3Image.jpg";
-
+import Loader from "@/app/components/StateLoader";
 import {
   FiEye as ShowPasswordIcon,
   FiEyeOff as HidePasswordIcon,
@@ -22,19 +18,21 @@ import { MdOutlineVpnKey as PasswordIcon } from "react-icons/md";
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { setUser, toggleAuth } = useAuthStore();
   const [terms, setTerms] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [errors, setErrors] = useState({});
-  const SERVER_API = process.env.NEXT_PUBLIC_SERVER_API;
-
-  const images = [auth1Image, auth2Image, auth3Image];
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const router = useRouter();
+  const { login } = useAuthStore();
+
+  const images = [
+    "/assets/auth1Image.jpg",
+    "/assets/auth2Image.jpg",
+    "/assets/auth3Image.jpg",
+  ];
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -47,61 +45,63 @@ export default function Login() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  const handleTermsChange = (event) => {
-    setTerms(event.target.checked);
-    setErrors((prev) => ({ ...prev, terms: "" }));
   };
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.email.trim())
-      newErrors.email = "email is required";
-    if (!terms) newErrors.terms = "You must accept the terms and conditions";
-    if (!formData.password) newErrors.password = "Password is required";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  async function onSubmit(e) {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+
+    if (!formData.email.trim()) {
+      toast.error("Email is required");
+      return;
+    }
+    if (!formData.password) {
+      toast.error("Password is required");
+      return;
+    }
+    if (!terms) {
+      toast.error("Please accept the terms and conditions");
+      return;
+    }
 
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${SERVER_API}/users/public/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const result = await login(formData.email, formData.password);
 
-      if (!response.ok) {
-        throw new Error(data.errors || "Login failed");
+      console.log(result);
+
+      if (result.success) {
+        toast.success(result.message);
+
+        switch (true) {
+          case result.isAdmin:
+            router.push("/page/dashboard/?card=revenue");
+            toast.success("Welcome Admin!");
+            break;
+
+          case result.isVip && !result.isAdmin:
+            router.push("/page/vip");
+            toast.success("Welcome VIP!");
+            break;
+
+          default:
+            router.push("/page/football");
+            toast.success("Welcome back!");
+            break;
+        }
+      } else {
+        toast.error(result.message || "Login failed");
       }
-
-      const responseData = await response.json();
-
-      const userData = responseData.data;
-      setUser(userData);
-
-      toast.success("Welcome");
-      router.push("/page/home", { scroll: false });
     } catch (error) {
-      toast.error("Login failed, credentials do not match");
+      toast.error("An error occurred during login");
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className={styles.authComponent}>
@@ -110,9 +110,12 @@ export default function Login() {
           className={styles.authImage}
           src={images[currentImageIndex]}
           alt="auth image"
-          layout="fill"
+          fill
+          sizes="100%"
           quality={100}
-          objectFit="cover"
+          style={{
+            objectFit: "cover",
+          }}
           priority={true}
         />
       </div>
@@ -131,40 +134,28 @@ export default function Login() {
             <h1>Login</h1>
             <p>Enter your account details</p>
           </div>
-          {/* email */}
+
           <div className={styles.authInput}>
-            <UserNameIcon
-              className={styles.authIcon}
-              alt="email icon"
-              width={20}
-              height={20}
-            />
+            <UserNameIcon className={styles.authIcon} />
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              placeholder="email"
+              placeholder="Email"
+              required
             />
           </div>
-          {errors.email && (
-            <p className={styles.errorText}>{errors.email}</p>
-          )}
 
-          {/* Password */}
           <div className={styles.authInput}>
-            <PasswordIcon
-              className={styles.authIcon}
-              alt="password icon"
-              width={20}
-              height={20}
-            />
+            <PasswordIcon className={styles.authIcon} />
             <input
               type={showPassword ? "text" : "password"}
               name="password"
               value={formData.password}
               onChange={handleInputChange}
               placeholder="Password"
+              required
             />
             <button
               type="button"
@@ -172,43 +163,26 @@ export default function Login() {
               onClick={toggleShowPassword}
             >
               {showPassword ? (
-                <ShowPasswordIcon
-                  className={styles.authIcon}
-                  alt="show icon"
-                  width={20}
-                  height={20}
-                />
+                <ShowPasswordIcon className={styles.authIcon} />
               ) : (
-                <HidePasswordIcon
-                  className={styles.authIcon}
-                  alt="hide icon"
-                  width={20}
-                  height={20}
-                />
+                <HidePasswordIcon className={styles.authIcon} />
               )}
             </button>
           </div>
-          {errors.password && (
-            <p className={styles.errorText}>{errors.password}</p>
-          )}
+
           <div className={styles.formChange}>
             <div className={styles.termsContainer}>
               <input
                 type="checkbox"
                 id="terms"
                 checked={terms}
-                onChange={handleTermsChange}
+                onChange={(e) => setTerms(e.target.checked)}
+                required
               />
-              <label
-                onClick={() => router.push("/page/terms", { scroll: false })}
-                htmlFor="terms"
-              >
-                Accept terms and conditions
-              </label>
+              <label htmlFor="terms">Accept terms and conditions</label>
             </div>
-            {errors.terms && <p className={styles.errorText}>{errors.terms}</p>}
-            <span onClick={() => router.push("resetcode", { scroll: false })}>
-              Forgot Password
+            <span onClick={() => router.push("resetcode")}>
+              Forgot Password?
             </span>
           </div>
 
@@ -221,11 +195,12 @@ export default function Login() {
           >
             {isLoading ? <Loader /> : "Login"}
           </button>
+
           <h3>
             Don&apos;t have an account?{" "}
             <div
               className={styles.btnLogin}
-              onClick={() => router.push("signup", { scroll: false })}
+              onClick={() => router.push("signup")}
             >
               Sign up
             </div>

@@ -17,9 +17,7 @@ export default function About() {
       case "vip":
         router.push("vip", { scroll: false });
         break;
-      case "straight":
-        router.push("straight", { scroll: false });
-        break;
+    
       default:
         break;
     }
@@ -134,7 +132,6 @@ export default function About() {
             <li onclick={() => openTips("free")}>Banker of the day</li>
             <li onclick={() => openTips("vip")}>VIP Tips</li>
             <li onclick={() => openTips("other")}>Other sports</li>
-            <li onclick={() => openTips("straight")}>Straight win</li>
           </ul>
       </div>
     </div>

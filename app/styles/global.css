@@ -4,13 +4,14 @@
     --line-color: #1c2b4b;
     --win-color: #458700;
     --draw-color: #a8a9a2;
-    --loose-color: #d00219;
+    --loose-color: #D93C3C;
     --light-color: #f2f4f7;
     --dark-light: #617092ff;
     --primary-color: #0a0e1a;
     --secondary-color: #00eda1;
     --tertiary-color: #6cd7ff;
-    --tertiary-light-color: #69b5d1;
+    --light-loose-color: #FF6B6B;
+    --tertiary-light-color: #66a6bd;
     --primary-light-color: #121f38;
     --primary-lighter-color: #0c1629;
 

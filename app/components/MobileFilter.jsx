@@ -8,23 +8,51 @@ import { BiWorld as CountryIcon } from "react-icons/bi";
 import { BiFootball as FootballIcon } from "react-icons/bi";
 import date from "date-and-time";
 
-export default function MobileFilter() {
+export default function MobileFilter({ predictions, title }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const lastParam = decodeURIComponent(pathname.split("/").pop());
-
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const dateParam = searchParams.get("date");
-    return dateParam || date.format(new Date(), "DD-MM-YYYY");
-  });
+  
+  const currentDate = date.format(new Date(), "DD-MM-YYYY");
+  const initialDate = searchParams.get("date") || currentDate;
+  
+  const [selectedDate, setSelectedDate] = useState(initialDate);
   const [league, setLeague] = useState(searchParams.get("league") || "");
   const [country, setCountry] = useState(searchParams.get("country") || "");
 
-  const countryData = ["Europe", "Kenya", "South Africa"];
-  const leagueData = ["Europa", "Copa America", "Bundesliga",];
+  const { countryData, leagueData } = useMemo(() => {
+    if (!Array.isArray(predictions)) {
+      return { countryData: [], leagueData: [] };
+    }
 
-  const currentDate = date.format(new Date(), "DD-MM-YYYY");
+    const uniqueCountries = new Set();
+    const uniqueLeagues = new Set();
+
+    predictions.forEach(prediction => {
+      if (prediction?.country) {
+        uniqueCountries.add(prediction.country);
+      }
+      if (prediction?.league) {
+        uniqueLeagues.add(prediction.league);
+      }
+    });
+
+    const countryData = Array.from(uniqueCountries)
+      .sort()
+      .map(country => ({
+        label: country.charAt(0).toUpperCase() + country.slice(1).toLowerCase(),
+        value: country.toLowerCase()
+      }));
+
+    const leagueData = Array.from(uniqueLeagues)
+      .sort()
+      .map(league => ({
+        label: league,
+        value: league.toLowerCase()
+      }));
+
+    return { countryData, leagueData };
+  }, [predictions]);
 
   const updateURL = useMemo(
     () =>
@@ -39,20 +67,22 @@ export default function MobileFilter() {
           }
         });
 
-        router.replace(`${pathname}?${urlParams}`);
+        const queryString = urlParams.toString();
+        const newPath = `${pathname}${queryString ? '?' + queryString : ''}`;
+        router.replace(newPath);
       }, 300),
     [pathname, router, searchParams]
   );
 
   useEffect(() => {
     updateURL({
-      date: selectedDate !== currentDate ? selectedDate : "",
+      date: selectedDate,
       league,
       country
     });
 
     return () => updateURL.cancel();
-  }, [selectedDate, league, country, currentDate, updateURL]);
+  }, [selectedDate, league, country, updateURL]);
 
   const handleLeagueSelect = useCallback((selectedValue) => {
     setLeague(selectedValue);
@@ -71,8 +101,8 @@ export default function MobileFilter() {
   return (
     <div className={styles.mobileFilterContainer}>
       <div className={styles.mobileFilterHead}>
-        <h1>{lastParam} betting tips and prediction</h1>
-        <h2>({selectedDate || currentDate})</h2>
+        <h1>{title} betting tips and prediction</h1>
+        <h2>({selectedDate})</h2>
       </div>
       <div className={styles.filterInner}>
         <MobileDropdown
@@ -106,7 +136,7 @@ export default function MobileFilter() {
             type="date"
             className={styles.dateInput}
             onChange={handleDateChange}
-            value={selectedDate ? date.format(new Date(selectedDate), "YYYY-MM-DD") : ""}
+            value={selectedDate ? date.format(new Date(selectedDate.split('-').reverse().join('-')), "YYYY-MM-DD") : ""}
           />
         </div>
       </div>

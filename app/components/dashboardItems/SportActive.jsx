@@ -27,11 +27,11 @@ export default function SportActive() {
   const renderCardContent = (card) => {
     switch (card) {
       case "football":
-        return <FootballTable Sport="football" />;
-      case "other":
-        return <OtherSportTable Sport="other" />;
+        return <FootballTable sport="football" />;
+      case "othersport":
+        return <OtherSportTable sport="othersport" />;
       case "vip":
-        return <VipTable Sport="vip" />;
+        return <VipTable sport="vip" />;
       case "price":
         return <PaymentTable Sport="price" />;
       default:

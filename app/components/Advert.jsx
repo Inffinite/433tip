@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import styles from "@/app/styles/advert.module.css";
 import { useRouter, usePathname } from "next/navigation";
@@ -31,7 +33,8 @@ export default function Banner() {
         className={styles.advertImage}
         src={images[currentImageIndex]}
         alt={`Advertisement ${currentImageIndex + 1}`}
-        layout="fill"
+        fill
+          sizes="100%"
         objectFit="cover"
         priority={true}
       />

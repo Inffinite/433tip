@@ -1,46 +1,124 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
+import LoadingLogo from "@/app/components/LoadingLogo";
 import styles from "@/app/styles/payment.module.css";
+import { usePaymentStore } from "@/app/store/Payment";
+import Nopayment from "@/public/assets/nopayment.png";
 import countryData from "@/app/utility/Countries";
-import paymentData from "@/app/utility/payment.json";
+import { useAuthStore } from "@/app/store/Auth";
+import Nothing from "@/app/components/Nothing";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   RiArrowDropDownLine as DropdownIcon,
   RiSearch2Line as SearchIcon,
 } from "react-icons/ri";
 
-const SearchBar = ({ value, onChange, className }) => (
+const SearchBar = ({ value, onChange }) => (
   <div className={styles.searchContainer}>
     <SearchIcon className={styles.searchIcon} aria-label="Search" />
     <input
       type="text"
       value={value}
       onChange={onChange}
-      placeholder="Search ..."
+      placeholder="Search country..."
       className={styles.searchInput}
-      aria-label="Search input"
     />
   </div>
 );
+
+const PaymentCard = ({ plan, currency, amount, type, onSelect }) => (
+  <div className={styles.payCard}>
+    <h1>{type} plan</h1>
+    <div className={styles.payCardInner}>
+      <div className={styles.paymentInfo}>
+        <span>{currency}</span>
+        <h2>{amount}</h2>
+        <span>/{type.toLowerCase()}</span>
+      </div>
+      <button
+        onClick={() => onSelect(amount, type)}
+        className={styles.chooseButton}
+      >
+        Choose plan
+      </button>
+    </div>
+  </div>
+);
+
+const countryOptions = [
+  { currency: "KE", label: "Kenya" },
+  { currency: "NG", label: "Nigeria" },
+  { currency: "CM", label: "Cameroon" },
+  { currency: "GH", label: "Ghana" },
+  { currency: "ZA", label: "South Africa" },
+  { currency: "TZ", label: "Tanzania" },
+  { currency: "UG", label: "Uganda" },
+  { currency: "ZM", label: "Zambia" },
+  { currency: "RW", label: "Rwanda" },
+  { currency: "MW", label: "Malawi" },
+  { currency: "USD", label: "Other" },
+];
 
 export default function Payment() {
   const [country, setCountry] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [paymentPlans, setPaymentPlans] = useState([]);
+  const [fetchError, setFetchError] = useState(null);
   const dropdownRef = useRef(null);
   const router = useRouter();
 
-  const countriesWithSpecificPricing = new Set(
-    paymentData
-      .filter((plan) => plan.country !== "Others")
-      .map((plan) => plan.country)
+  const { country: userCountry, isAuth } = useAuthStore();
+  const { getPaymentPlanByCountry, loading } = usePaymentStore();
+
+  const isCountryInOptions = (countryName) => {
+    return countryOptions.some(
+      (option) => option.label.toLowerCase() === countryName.toLowerCase()
+    );
+  };
+
+  const fetchPaymentPlans = useCallback(
+    async (selectedCountry) => {
+      if (!selectedCountry) return;
+
+      try {
+        const countryToUse = isCountryInOptions(selectedCountry)
+          ? selectedCountry
+          : "Other";
+        const result = await getPaymentPlanByCountry(countryToUse);
+        
+        if (result.success) {
+          setPaymentPlans([result.data]);
+          setFetchError(null);
+          toast.success(`Payment plans loaded for ${selectedCountry}`);
+        } else {
+          setPaymentPlans([]);
+          setFetchError(result.message);
+          toast.error(result.message);
+        }
+      } catch (error) {
+        setPaymentPlans([]);
+        setFetchError("Failed to fetch payment plans");
+        toast.error("Failed to fetch payment plans");
+      }
+    },
+    [getPaymentPlanByCountry]
   );
 
-  const handleSelect = (option) => {
+  useEffect(() => {
+    if (isAuth && userCountry) {
+      setCountry(userCountry);
+      fetchPaymentPlans(userCountry);
+    }
+  }, [isAuth, userCountry, fetchPaymentPlans]);
+
+  const handleSelect = async (option) => {
     setCountry(option.name);
     setSearch("");
     setIsOpen(false);
+    await fetchPaymentPlans(option.name);
   };
 
   const handleInputChange = (e) => {
@@ -59,58 +137,69 @@ export default function Payment() {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [dropdownRef]);
-
-  const getPaymentData = (selectedCountry) => {
-    if (!selectedCountry) return [];
-
-    if (countriesWithSpecificPricing.has(selectedCountry)) {
-      return paymentData.filter((d) => d.country === selectedCountry);
-    }
-    return paymentData.filter((d) => d.country === "Others");
-  };
-
-  const paymentMethodData = getPaymentData(country);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const goToPayment = (price, plan) => {
-    router.push(`payment/${country}?plan=${plan}&price=${price}&currency=${paymentMethodData[0].value}`, {
-      scroll: false,
-    });
+    if (paymentPlans.length === 0) return;
+    const currency = paymentPlans[0].currency || "USD";
+    router.push(
+      `payment/${country}?plan=${plan}&price=${price}&currency=${currency}`,
+      { scroll: false }
+    );
   };
+
+  const renderContent = () => {
+    if (loading) {
+      return <LoadingLogo />;
+    }
+
+    if (fetchError || paymentPlans.length === 0) {
+      return <Nothing Alt="No payment plans" NothingImage={Nopayment} Text={fetchError || "No payment plans available"} />;
+    }
+
+    return paymentPlans.map((data, index) => (
+      <div key={`payment-section-${index}`} className={styles.paymentSection}>
+        <PaymentCard
+          plan={data}
+          currency={data.currency}
+          amount={data.weekly}
+          type="Weekly"
+          onSelect={goToPayment}
+        />
+        <PaymentCard
+          plan={data}
+          currency={data.currency}
+          amount={data.monthly}
+          type="Monthly"
+          onSelect={goToPayment}
+        />
+      </div>
+    ));
+  };
+
   return (
     <div className={styles.paymentContainer}>
       <div className={styles.paymentHeader}>
-        <h1>Choose your country to get payment method</h1>
+        <h1>Payment method is determined by your country</h1>
         <h1>
-          <span>VIP subscription </span> is valid for 30 days with no extra
-          charges
-        </h1>
-        <h1>
-        Your  VIP account will be activated once your payment is recieved
+          Your <span>VIP account</span> will be activated once your payment is
+          received
         </h1>
       </div>
+
       <div className={styles.searchDropdownWrapper}>
-        <SearchBar
-          value={search}
-          onChange={handleInputChange}
-          className={styles.desktopSearch}
-        />
+        <SearchBar value={search} onChange={handleInputChange} />
         <div className={styles.dropdownContainer} ref={dropdownRef}>
           <div
             className={styles.dropdownInput}
             onClick={() => setIsOpen(!isOpen)}
           >
             <span>{country || "Select Country"}</span>
-            <DropdownIcon
-              className={styles.dropdownIcon}
-              aria-label="Dropdown icon"
-            />
+            <DropdownIcon className={styles.dropdownIcon} />
           </div>
 
-          {(isOpen || search) && countryData && countryData.length > 0 && (
+          {(isOpen || search) && (
             <div className={styles.dropdownArea}>
               {filteredCountries.map((country) => (
                 <span
@@ -126,42 +215,7 @@ export default function Payment() {
         </div>
       </div>
 
-      {paymentMethodData.map((data, index) => (
-        <div key={`payment-section-${index}`} className={styles.paymentSection}>
-          <div className={styles.payCard}>
-            <h1>Weekly plan</h1>
-            <div className={styles.payCardInner}>
-              <div className={styles.paymentInfo}>
-                <span>{data.value}</span>
-                <h2>{data.weekly}</h2>
-                <span>/weekly</span>
-              </div>
-              <button
-                onClick={() => goToPayment(data.weekly, "Weekly")}
-                className={styles.chooseButton}
-              >
-                Choose plan
-              </button>
-            </div>
-          </div>
-          <div className={styles.payCard}>
-            <h1>Monthly plan</h1>
-            <div className={styles.payCardInner}>
-              <div className={styles.paymentInfo}>
-                <span>{data.value}</span>
-                <h2>{data.monthly}</h2>
-                <span>/monthly</span>
-              </div>
-              <button
-                onClick={() => goToPayment(data.weekly, "Monthly")}
-                className={styles.chooseButton}
-              >
-                Choose plan
-              </button>
-            </div>
-          </div>
-        </div>
-      ))}
+      {renderContent()}
     </div>
   );
 }

@@ -28,7 +28,7 @@ export default function DashNavLink() {
       ),
     },
     {
-      name: "other",
+      name: "othersport",
       icon: (
         <OtherSportIcon
           alt="othersport icon"
@@ -63,7 +63,6 @@ export default function DashNavLink() {
     const params = new URLSearchParams(searchParams);
     params.set(name, value);
     
-    // Preserve other existing query parameters
     const card = searchParams.get('card');
     if (card) {
       params.set('card', card);

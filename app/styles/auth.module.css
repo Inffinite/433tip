@@ -12,6 +12,7 @@
     flex-direction: column;
     justify-content: center;
     background-color: var(--primary-color);
+    background-image: var(--background-image);
 
   }
 
@@ -25,11 +26,17 @@
     width: 100%;
   }
 
+
   .formContainer {
     gap: 20px;
     width: 100%;
     display: flex;
     flex-direction: column;
+  }
+
+  .logo {
+    width: 60px;
+    height: 100%;
   }
 
   .formLogo{
@@ -308,20 +315,24 @@
     align-items: center;
     backdrop-filter: none;
     justify-content: center;
-    -webkit-backdrop-filter: none;
     color: var(--light-color);
+    -webkit-backdrop-filter: none;
     background-color: var(--primary-color);
+    background-image: var(--background-image);
+
   }
 
   .authComponentBgImage {
+    position: relative;
     flex: 50%;
     border-radius: 0;
-    align-items: end;
-    position: relative;
+    align-items: flex-end;
     height: 100%;
     display: flex;
     color: var(--light-color);
     background-color: var(--primary-color);
+    background-image: var(--background-image);
+
   }
 
 

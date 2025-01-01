@@ -1,9 +1,9 @@
 "use client";
 
+import { toast } from "sonner";
 import Image from "next/image";
-import toast from "react-hot-toast";
 import debounce from "lodash.debounce";
-import Loading from "@/app/components/Loader";
+import Loading from "@/app/components/StateLoader";
 import { useAuthStore } from "@/app/store/Auth";
 import { useDrawerStore } from "@/app/store/Drawer";
 import styles from "@/app/styles/navbar.module.css";
@@ -20,11 +20,10 @@ import {
   RiUserLine as UserIcon,
 } from "react-icons/ri";
 
-import {
-  FaBell as NotificationOnIcon,
-  FaBellSlash as NotificationOffIcon,
+import { 
+  FaBell as BellIcon,
+  FaBellSlash as BellSlashIcon 
 } from "react-icons/fa";
-
 import { HiOutlineLogout as LogoutIcon } from "react-icons/hi";
 
 const SearchBar = ({ value, onChange, className }) => (
@@ -46,20 +45,32 @@ const SearchBar = ({ value, onChange, className }) => (
 );
 
 export default function NavbarComponent() {
-  const { isNotificationOn, openNotification, toggleNotification } =
-    useNotificationStore();
-  const [profile, setProfile] = useState(ProfileImg);
-  const [username, setUsername] = useState("penguin");
+  const {
+    openNotification,
+    unreadCount,
+    toggleNotification,
+    totalNotifications,
+    isNotificationAllowed,
+    checkNotificationPermission
+  } = useNotificationStore();
+  
   const [isLoading, setIsLoading] = useState(false);
   const { isOpen, toggleOpen } = useDrawerStore();
   const [isMobile, setIsMobile] = useState(false);
-  const { isAuth, toggleAuth } = useAuthStore();
-  const [status, setStatus] = useState("user");
   const [search, setSearch] = useState("");
+
+  const { isAuth, username, profileImage, isAdmin, isVip, logout } =
+    useAuthStore();
 
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    if (isAuth) {
+      checkNotificationPermission();
+    }
+  }, [isAuth, checkNotificationPermission]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -67,9 +78,7 @@ export default function NavbarComponent() {
     };
 
     handleResize();
-
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -94,7 +103,6 @@ export default function NavbarComponent() {
 
   useEffect(() => {
     performSearch(search.trim());
-
     return () => performSearch.cancel();
   }, [search, performSearch, isSearchablePage]);
 
@@ -102,29 +110,45 @@ export default function NavbarComponent() {
     setSearch(event.target.value);
   }, []);
 
-  const handleLogout = useCallback(() => {
+  const handleNotificationClick = useCallback(async () => {
+    if (!isNotificationAllowed) {
+      const permissionGranted = await checkNotificationPermission();
+      if (permissionGranted) {
+        toast.success('Push notifications enabled');
+        toggleNotification();
+      } else {
+        toast.error('Please enable notifications in your browser settings');
+      }
+    } else {
+      toggleNotification();
+    }
+  }, [isNotificationAllowed, checkNotificationPermission, toggleNotification]);
+
+  const handleLogout = useCallback(async () => {
     setIsLoading(true);
     try {
-      toggleAuth(false);
-      toast.success("Logged out successfully");
+      const result = await logout();
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
     } catch (error) {
       toast.error("Logout failed");
     } finally {
       setIsLoading(false);
     }
-  }, [toggleAuth]);
+  }, [logout]);
 
   const handleLogin = useCallback(() => {
-    setIsLoading(true);
-    try {
-      toggleAuth(true);
-      toast.success("Logged in successfully");
-    } catch (error) {
-      toast.error("Login failed");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [toggleAuth]);
+    router.push("/authentication/login", { scroll: false });
+  }, [router]);
+
+  const getUserStatus = () => {
+    if (isAdmin) return "admin";
+    if (isVip) return "vip";
+    return "user";
+  };
 
   return (
     <>
@@ -148,7 +172,7 @@ export default function NavbarComponent() {
             ) : isAuth && !isMobile ? (
               <div className={styles.userProfile}>
                 <Image
-                  src={profile}
+                  src={profileImage || ProfileImg}
                   height={35}
                   width={35}
                   alt={`${username}'s profile`}
@@ -158,7 +182,7 @@ export default function NavbarComponent() {
                 {!isMobile && (
                   <div className={styles.userProfileInfo}>
                     <h1>{username}</h1>
-                    <span>[{status}]</span>
+                    <span>[{getUserStatus()}]</span>
                   </div>
                 )}
               </div>
@@ -175,7 +199,7 @@ export default function NavbarComponent() {
               {(isMobile || isSearchablePage) && (
                 <div className={styles.userProfile}>
                   <Image
-                    src={profile}
+                    src={profileImage || ProfileImg}
                     height={35}
                     width={35}
                     alt={`${username}'s profile`}
@@ -185,7 +209,7 @@ export default function NavbarComponent() {
                   {!isMobile && (
                     <div className={styles.userProfileInfo}>
                       <h1>{username}</h1>
-                      <span>[{status}]</span>
+                      <span>[{getUserStatus()}]</span>
                     </div>
                   )}
                 </div>
@@ -193,18 +217,22 @@ export default function NavbarComponent() {
 
               <div
                 className={`${styles.notificationContainer} ${
-                  isNotificationOn ? styles.activeNotification : ""
-                }`}
-                onClick={toggleNotification}
+                  totalNotifications > 0 ? styles.activeNotification : ""
+                } }`}
+                
+                onClick={handleNotificationClick}
+                title={isNotificationAllowed 
+                  ? `${totalNotifications} total notifications` 
+                  : 'Enable notifications'}
               >
-                {isNotificationOn ? (
-                  <div className={styles.notificationStatus}>
-                    <span>0</span>
-                    <NotificationOnIcon className={styles.notificationIcon} />
-                  </div>
-                ) : (
-                  <NotificationOffIcon className={styles.notificationIcon} />
-                )}
+                <div className={styles.notificationStatus}>
+                  {isNotificationAllowed && unreadCount > 0 && <span>{unreadCount}</span>}
+                  {isNotificationAllowed ? (
+                    <BellIcon className={styles.notificationIcon} />
+                  ) : (
+                    <BellSlashIcon className={styles.notificationIcon} />
+                  )}
+                </div>
               </div>
 
               <button
@@ -232,28 +260,28 @@ export default function NavbarComponent() {
               ) : (
                 <>
                   <UserIcon alt="user icon" className={styles.userIcon} />
-                  <span>Login</span>
+                  Login
                 </>
               )}
             </button>
           )}
         </div>
         {/* Mobile search bar */}
-        {isSearchablePage ? (
+        {isSearchablePage && (
           <SearchBar
             value={search}
             onChange={handleInputChange}
             className={styles.mobileSearch}
           />
-        ) : (
-          ""
         )}
       </div>
-      <Popup
-        Open={openNotification}
-        Close={toggleNotification}
-        Content={<Notification />}
-      />
+      {isNotificationAllowed && (
+        <Popup
+          Open={openNotification}
+          Close={toggleNotification}
+          Content={<Notification />}
+        />
+      )}
     </>
   );
 }

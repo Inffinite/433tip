@@ -1,97 +1,43 @@
 "use client";
 
+import { toast } from 'sonner';
 import Image from "next/image";
-import toast from "react-hot-toast";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Loader from "@/app/components/Loader";
+import { useAuthStore } from "@/app/store/Auth";
+import Loader from "@/app/components/StateLoader";
 import LogoImg from "@/public/assets/logo.png";
 import styles from "@/app/styles/auth.module.css";
 import auth1Image from "@/public/assets/auth1Image.jpg";
-import auth2Image from "@/public/assets/auth2Image.jpg";
-import auth3Image from "@/public/assets/auth3Image.jpg";
-
 import { MdOutlineEmail as EmailIcon } from "react-icons/md";
 
 export default function SignUp() {
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-  });
-  const [errors, setErrors] = useState({});
-
-  const images = [auth1Image, auth2Image, auth3Image];
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  const router = useRouter();
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [images.length]);
-
-  const nextImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex(
-      (prevIndex) => (prevIndex - 1 + images.length) % images.length
-    );
-  };
-
-  const SERVER_API = process.env.NEXT_PUBLIC_SERVER_API;
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const requestPasswordReset = useAuthStore(
+    (state) => state.requestPasswordReset
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!email.trim()) {
+      setError("Email is required");
+      return;
+    }
 
     setIsLoading(true);
 
     try {
-      const { email } = formData;
-      const response = await fetch(
-        `${SERVER_API}/users/public/forgot/${email}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const result = await requestPasswordReset(email);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Error getting reset code");
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
       }
-      toast.success(data.message || "Reset code sent");
-      router.push("forgot", { scroll: false });
     } catch (error) {
-      toast.error(error.message || "Error getting reset code");
+      toast.error("An error occurred while requesting password reset");
     } finally {
       setIsLoading(false);
     }
@@ -102,11 +48,14 @@ export default function SignUp() {
       <div className={styles.authComponentBgImage}>
         <Image
           className={styles.authImage}
-          src={images[currentImageIndex]}
+          src={auth1Image}
           alt="auth image"
-          layout="fill"
+          fill
+          sizes="100%"
           quality={100}
-          objectFit="cover"
+          style={{
+            objectFit: "cover",
+          }}
           priority={true}
         />
       </div>
@@ -123,10 +72,9 @@ export default function SignUp() {
           </div>
           <div className={styles.formHeader}>
             <h1>Reset password</h1>
-            <p>Enter your email to get the reset code</p>
+            <p>Enter your email to get the reset link</p>
           </div>
 
-          {/*Email Input */}
           <div className={styles.authInput}>
             <EmailIcon
               className={styles.authIcon}
@@ -136,15 +84,15 @@ export default function SignUp() {
             />
             <input
               type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setError("");
+              }}
               placeholder="Email"
             />
           </div>
-          {errors.email && (
-            <p className={styles.errorText}>{errors.email}</p>
-          )}
+          {error && <p className={styles.errorText}>{error}</p>}
 
           <button
             type="submit"
@@ -154,15 +102,7 @@ export default function SignUp() {
             {isLoading ? <Loader /> : "Request code"}
           </button>
 
-          <h3>
-            Already have an account?{" "}
-            <div
-              className={styles.btnLogin}
-              onClick={() => router.push("login", { scroll: false })}
-            >
-              Login
-            </div>
-          </h3>
+        
         </form>
       </div>
     </div>

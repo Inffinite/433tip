@@ -18,6 +18,7 @@
     overflow-y: auto;
     min-height: 600px;
     overflow-x: hidden;
+
   }
 
   .emptyCard {
@@ -27,6 +28,9 @@
     border-radius: 15px;
     border: 1px solid var(--line-color);
   }
+
+
+  
 }
 
 /* using it as global style for larger devices  */
@@ -39,6 +43,9 @@
   .emptyCard {
     height: 410px;
   }
+
+
+
   
 }
 

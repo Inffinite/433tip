@@ -76,7 +76,6 @@
   .contactInput input::placeholder,
   .contactInputTextArea textarea::placeholder {
     font-size: 0.8rem;
-    text-transform: capitalize;
     color: var(--dark-light);
   }
 

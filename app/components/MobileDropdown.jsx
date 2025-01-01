@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import styles from "@/app/styles/mobileDropdown.module.css";
 import { RiArrowDropDownLine as DropdownIcon } from "react-icons/ri";
 
-export default function Dropdown({ options, onSelect, Icon, dropPlaceHolder }) {
-  const [selectedOption, setSelectedOption] = useState(null);
+export default function MobileDropdown({ options, onSelect, Icon, dropPlaceHolder, value }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
 
+  const selectedOption = options?.find(opt => opt.value === value);
+
   const handleSelect = (option) => {
-    setSelectedOption(option);
-    onSelect(option);
+    onSelect(option.value);
     setIsOpen(false);
   };
 
@@ -24,14 +24,18 @@ export default function Dropdown({ options, onSelect, Icon, dropPlaceHolder }) {
         ref={triggerRef}
       >
         {Icon}
-        <span>{selectedOption || dropPlaceHolder}</span>
-        <DropdownIcon className={styles.dropdownIcon} aria-label="Dropdown icon"  />
+        <span>{selectedOption ? selectedOption.label : dropPlaceHolder}</span>
+        <DropdownIcon className={styles.dropdownIcon} aria-label="Dropdown icon" />
       </div>
       {isOpen && options && options.length > 0 && (
         <div className={styles.dropdownArea}>
           {options.map((option, index) => (
-            <span key={index} onClick={() => handleSelect(option)}>
-              {option}
+            <span 
+              key={option.value || index}
+              onClick={() => handleSelect(option)}
+              className={option.value === value ? styles.selected : ''}
+            >
+              {option.label}
             </span>
           ))}
         </div>

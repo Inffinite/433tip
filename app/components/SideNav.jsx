@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { toast } from "sonner";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import LogoImg from "@/public/assets/logo.png";
+import { useAuthStore } from "@/app/store/Auth";
 import { useDrawerStore } from "@/app/store/Drawer";
 import styles from "@/app/styles/sideNav.module.css";
 import { usePathname } from "next/navigation";
+import { useEffect, useState, useCallback } from "react";
 import {
   RiVipCrownLine as VipIcon,
   RiDashboardHorizontalLine as DashboardIcon,
@@ -18,7 +20,10 @@ import {
 import { MdOutlineSettings as SettingsIcon } from "react-icons/md";
 import { HiOutlineLogout as LogoutIcon } from "react-icons/hi";
 import { TbInfoHexagon as AboutIcon } from "react-icons/tb";
-import { IoReaderOutline as TermsIcon, IoNewspaperOutline as NewsIcon  } from "react-icons/io5";
+import {
+  IoReaderOutline as TermsIcon,
+  IoNewspaperOutline as NewsIcon,
+} from "react-icons/io5";
 import {
   PiCourtBasketball as OtherSportIcon,
   PiTelegramLogo as TelegramLogo,
@@ -28,6 +33,7 @@ import { LuContact as ContactIcon } from "react-icons/lu";
 import { RiMenu4Fill as MenuIcon } from "react-icons/ri";
 
 export default function SideNav() {
+  const { isAuth, isAdmin, logout } = useAuthStore();
   const { isOpen, toggleOpen } = useDrawerStore();
   const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
@@ -53,9 +59,21 @@ export default function SideNav() {
   }`;
 
   const openTelegram = () => {
-    window.open('https://t.me/four_three_three_tips', '_blank')
-  
-  }
+    window.open("https://t.me/four_three_three_tips", "_blank");
+  };
+
+  const handleLogout = useCallback(async () => {
+    try {
+      const result = await logout();
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error("Logout failed");
+    }
+  }, [logout]);
 
   return (
     <div className={sidebarClasses}>
@@ -78,23 +96,28 @@ export default function SideNav() {
         />
       </div>
       <div className={styles.sideTop}>
-        <Link href="/page/dashboard/?card=revenue" className={styles.sideLink}>
-          <div
-            className={`${styles.innerSideLink} ${
-              pathname === "/page/dashboard" ||
-              pathname.startsWith("/page/dashboard/")
-                ? styles.activeLink
-                : ""
-            }`}
+        {isAdmin && (
+          <Link
+            href="/page/dashboard/?card=revenue"
+            className={styles.sideLink}
           >
-            <DashboardIcon
-              alt="dashboard icon"
-              aria-label="dashboard icon"
-              className={styles.linkIcon}
-            />
-            <h1>Dashboard</h1>
-          </div>
-        </Link>
+            <div
+              className={`${styles.innerSideLink} ${
+                pathname === "/page/dashboard" ||
+                pathname.startsWith("/page/dashboard/")
+                  ? styles.activeLink
+                  : ""
+              }`}
+            >
+              <DashboardIcon
+                alt="dashboard icon"
+                aria-label="dashboard icon"
+                className={styles.linkIcon}
+              />
+              <h1>Dashboard</h1>
+            </div>
+          </Link>
+        )}
         <Link href="/page/football" className={styles.sideLink}>
           <div
             className={`${styles.innerSideLink} ${
@@ -202,7 +225,7 @@ export default function SideNav() {
             <h1>About us</h1>
           </div>
         </Link>
-     
+
         <Link href="/page/terms" className={styles.sideLink}>
           <div
             className={`${styles.innerSideLink} ${
@@ -222,7 +245,8 @@ export default function SideNav() {
         <Link href="/page/contact" className={styles.sideLink}>
           <div
             className={`${styles.innerSideLink} ${
-              pathname === "/page/contact" || pathname.startsWith("/page/contact/")
+              pathname === "/page/contact" ||
+              pathname.startsWith("/page/contact/")
                 ? styles.activeLink
                 : ""
             }`}
@@ -236,32 +260,34 @@ export default function SideNav() {
           </div>
         </Link>
       </div>
-      <div className={styles.sideBottomContainer}>
-        <Link href="/page/settings" className={styles.sideLink}>
-          <div
-            className={`${styles.innerSideLink} ${
-              pathname === "/page/settings" ||
-              pathname.startsWith("/page/settings/")
-                ? styles.activeLink
-                : ""
-            }`}
-          >
-            <SettingsIcon
-              alt="settings icon"
-              aria-label="settings icon"
+      {isAuth && (
+        <div className={styles.sideBottomContainer}>
+          <Link href="/page/settings" className={styles.sideLink}>
+            <div
+              className={`${styles.innerSideLink} ${
+                pathname === "/page/settings" ||
+                pathname.startsWith("/page/settings/")
+                  ? styles.activeLink
+                  : ""
+              }`}
+            >
+              <SettingsIcon
+                alt="settings icon"
+                aria-label="settings icon"
+                className={styles.linkIcon}
+              />
+              <h1>settings</h1>
+            </div>
+          </Link>
+          <div className={styles.sideBottom} onClick={handleLogout}>
+            <LogoutIcon
+              alt="logout icon"
+              aria-label="logout icon"
               className={styles.linkIcon}
             />
-            <h1>settings</h1>
           </div>
-        </Link>
-        <div className={styles.sideBottom}>
-          <LogoutIcon
-            alt="logout icon"
-            aria-label="logout icon"
-            className={styles.linkIcon}
-          />
         </div>
-      </div>
+      )}
     </div>
   );
 }

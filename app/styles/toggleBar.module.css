@@ -6,6 +6,7 @@
     flex-direction: row-reverse;
     align-items: center;
     border-radius: 20px;
+    min-width: fit-content;
     cursor: pointer;
     display: flex;
     height: 40px;

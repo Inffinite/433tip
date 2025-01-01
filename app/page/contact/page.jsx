@@ -1,25 +1,28 @@
 "use client";
 
+import { toast } from "sonner";
 import Image from "next/image";
 import { useState } from "react";
-import Loader from "@/app/components/loader";
+import { useAuthStore } from "@/app/store/Auth";
+import Loader from "@/app/components/StateLoader";
 import styles from "@/app/styles/contact.module.css";
-import toast from "react-hot-toast";
 
 //social icons
 import Instagram from "@/public/icons/instagram.svg";
 import Whatsapp from "@/public/icons/whatsapp.svg";
-import linkedIn from "@/public/icons/linkedIn.svg";
 import Telegram from "@/public/icons/telegram.svg";
 import Twitter from "@/public/icons/twitter.svg";
 import Youtube from "@/public/icons/youtube.svg";
+import Facebook from "@/public/icons/facebook.svg";
+import Threads from "@/public/icons/thread.svg";
 
 import { FaRegUser as UserNameIcon } from "react-icons/fa6";
 import { MdOutlineEmail as EmailIcon } from "react-icons/md";
 
-
 export default function Contact() {
   const [isLoading, setIsLoading] = useState(false);
+  const { submitContactForm } = useAuthStore();
+
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -28,13 +31,41 @@ export default function Contact() {
   const [errors, setErrors] = useState({});
 
   const socialData = [
-    { name: "Twitter", icons: Twitter, link: "https://twitter.com" },
-    { name: "Youtube", icons: Youtube, link: "https://youtube.com" },
-    { name: "Telegram", icons: Telegram, link: "https://t.me/four_three_three_tips" },
-    { name: "linkedIn", icons: linkedIn, link: "https://linkedin.com" },
-    { name: "Whatsapp", icons: Whatsapp, link: "https://whatsapp.com" },
-    { name: "Instagram", icons: Instagram, link: "https://instagram.com" },
-    { name: "Facebook", icons: Instagram, link: "https://instagram.com" },
+    {
+      name: "Twitter",
+      icons: Twitter,
+      link: "https://twitter.com/433__tips?t=0gSFRZkJ3AM0DAfj4rglDw&s=09",
+    },
+    {
+      name: "Youtube",
+      icons: Youtube,
+      link: "https://www.youtube.com/@433__Tips",
+    },
+    {
+      name: "Telegram",
+      icons: Telegram,
+      link: "https://t.me/four_three_three_tips",
+    },
+    {
+      name: "Whatsapp",
+      icons: Whatsapp,
+      link: "https://whatsapp.com/channel/0029VaIfGfUCRs1k81P0VR1J",
+    },
+    {
+      name: "Instagram",
+      icons: Instagram,
+      link: "https://instagram.com/433__tips?utm_source=qr&igshid=MzNlNGNkZWQ4Mg%3D%3D",
+    },
+    {
+      name: "Facebook",
+      icons: Facebook,
+      link: "https://www.facebook.com/profile.php?id=61550333845293&mibextid=9R9pXO",
+    },
+    {
+      name: "Threads",
+      icons: Threads,
+      link: "https://www.threads.net/@433__tips",
+    },
   ];
 
   const openLink = (link) => {
@@ -43,8 +74,7 @@ export default function Contact() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-      setFormData((prev) => ({ ...prev, [name]: value }));
-
+    setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -69,21 +99,17 @@ export default function Contact() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/users/send/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const { success, message } = await submitContactForm(
+        formData.email,
+        formData.username,
+        formData.message
+      );
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (success) {
         toast.success("Message sent successfully!");
-        setFormData({ username: "", email: "",  message: "" });
+        setFormData({ username: "", email: "", message: "" });
       } else {
-        toast.error(data.message || "Failed to send message");
+        toast.error(message || "Failed to send message");
       }
     } catch (error) {
       console.error(error);
@@ -112,7 +138,7 @@ export default function Contact() {
               type="text"
               name="username"
               id="username"
-              placeholder="penguin"
+              placeholder="Penguin"
               value={formData.username}
               onChange={handleInputChange}
               required
@@ -139,7 +165,7 @@ export default function Contact() {
               type="email"
               name="email"
               id="email"
-              placeholder="penguin@gmail.com"
+              placeholder="Penguin@gmail.com"
               value={formData.email}
               onChange={handleInputChange}
               required
@@ -147,6 +173,7 @@ export default function Contact() {
           </div>
           {errors.email && <p className={styles.errorText}>{errors.email}</p>}
         </div>
+
         {/* Message */}
         <div className={styles.contactInputContainer}>
           <label htmlFor="message" className={styles.contactLabel}>
@@ -167,6 +194,7 @@ export default function Contact() {
             <p className={styles.errorText}>{errors.message}</p>
           )}
         </div>
+
         <div className={styles.formcontactBtnWrapper}>
           <button
             type="submit"

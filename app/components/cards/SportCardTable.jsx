@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import Image from "next/image";
 import { DateTime } from "luxon";
 import { useRouter } from "next/navigation";
 import styles from "@/app/styles/sportcardtable.module.css";

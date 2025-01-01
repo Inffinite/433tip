@@ -2,7 +2,6 @@
   .formMain {
     gap: 20px;
     display: flex;
-    align-items: center;
     flex-direction: column;
     justify-content: center;
   }
@@ -104,7 +103,7 @@
     min-height: 60px;
     border-radius: 15px;
     color: var(--primary-color);
-    background-color:var(--tertiary-color);
+    background-color: var(--tertiary-color);
   }
 
   .addButton:hover {
@@ -126,7 +125,8 @@
   .formationItem {
     gap: 5px;
     display: flex;
-    padding: 10px;
+    cursor: pointer;
+    padding: 10px 20px;
     position: relative;
     align-items: center;
     border-radius: 15px;
@@ -134,30 +134,7 @@
     border: 1px solid var(--line-color);
     background-image: var(--background-image);
     background-color: var(--primary-light-color);
-
   }
-
-
-  .removeContainer {
-    top: -10px;
-    z-index: 99;
-    right: -15px;
-    display: flex;
-    cursor: pointer;
-    position: absolute;
-    align-items: center;
-    border-radius: 4px;
-    justify-content: center;
-    background-image: var(--background-image);
-    background-color: var(--primary-light-color);
-  }
-
-
-  .removeIcon {
-    font-size: 24px;
-    color: var(--light-color);
-  }
-
 
   .formTeamWrapper {
     width: 100%;
@@ -169,6 +146,7 @@
     gap: 15px;
     width: 100%;
     display: flex;
+    position: relative;
     flex-direction: column;
   }
 
@@ -190,6 +168,39 @@
     align-items: center;
     justify-content: center;
     background-color: var(--primary-lighter-color);
+  }
+
+  .searchResults {
+    top: 120px;
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    z-index: 999;
+    overflow: hidden;
+    overflow-y: auto;
+    max-height: 350px;
+    overflow-x: hidden;
+    position: absolute;
+    border-radius: 20px;
+    flex-direction: column;
+    color: var(--light-color);
+    border: 1px solid var(--line-color);
+    background-color: var(--primary-light-color);
+  }
+
+  .searchResults span {
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .searchResults span {
+    padding: 10px;
+  }
+
+  .searchResults span:hover {
+    border-radius: 8px;
+    color: var(--primary-color);
+    background-color: var(--tertiary-color);
   }
 
   .imageUploaded {
@@ -230,6 +241,13 @@
     color: var(--dark-light);
   }
 
+  .formToggleContainer {
+    gap: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .submitButton {
     gap: 15px;
     width: 100%;
@@ -249,6 +267,10 @@
 
 /* using it as global style for larger devices  */
 @media only screen and (min-width: 48em) {
+  .formMain {
+    align-items: center;
+  }
+
   .formChangeUpload {
     height: 150px;
     border-radius: 15px;

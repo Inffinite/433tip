@@ -41,6 +41,7 @@
   overflow: hidden;
   max-height: 350px;
   overflow-x: hidden;
+  overflow-y: auto;
   position: absolute;
   border-radius: 15px;
   flex-direction: column;

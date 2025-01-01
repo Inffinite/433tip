@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import styles from "@/app/styles/dropdown.module.css";
 import countriesData from "@/app/utility/Countries.jsx";
