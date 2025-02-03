@@ -1,0 +1,15 @@
+services:
+  tipsfrontend:
+    container_name: tips-frontend
+    restart: unless-stopped
+    build: .
+    image: tipsfrontend
+    networks:
+      - nginxproxymanager_default
+    ports:
+      - "3003:3000"
+
+networks:
+  nginxproxymanager_default:
+    name: nginxproxymanager_default
+    external: true
